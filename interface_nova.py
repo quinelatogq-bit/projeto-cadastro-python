@@ -66,6 +66,11 @@ def acao_editar():
 def limpar_resultado():
     resultado.delete("1.0", tk.END)
 
+def atualizar_lista():
+    resultado.delete("1.0", tk.END)
+    mensagem = listar_usuarios()
+    resultado.insert(tk.END, mensagem + "\n")
+
 
 janela = tk.Tk()
 janela.title("Sistema de Cadastro")
@@ -74,19 +79,19 @@ janela.geometry("550x420")
 label_titulo = tk.Label(janela, text="Sistema de Cadastro", font=("Arial", 16))
 label_titulo.pack(pady=10)
 
-label_nome_antigo = tk.Label(janela, text="Nome antigo:")
+label_nome_antigo = tk.Label(janela, text="para editar:")
 label_nome_antigo.pack()
 
 entry_nome_antigo = tk.Entry(janela, width=40)
 entry_nome_antigo.pack(pady=5)
 
-label_nome = tk.Label(janela, text="Novo nome:")
+label_nome = tk.Label(janela, text="nome:")
 label_nome.pack()
 
 entry_nome = tk.Entry(janela, width=40)
 entry_nome.pack(pady=5)
 
-label_idade = tk.Label(janela, text="Nova idade:")
+label_idade = tk.Label(janela, text="idade:")
 label_idade.pack()
 
 entry_idade = tk.Entry(janela, width=40)
