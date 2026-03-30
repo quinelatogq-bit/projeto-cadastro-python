@@ -1,10 +1,11 @@
+from dados import carregar_dados, salvar_dados
 import tkinter as tk
 from tkinter import messagebox
+from usuarios import cadastrar_usuario, listar_usuarios, buscar_usuario, remover_usuario, editar_usuario
 
-usuarios = []
+dados = carregar_dados()
 
-
-def cadastrar_usuario():
+def acao_cadastrar():
     nome = entry_nome.get().strip()
     idade = entry_idade.get().strip()
 
@@ -16,98 +17,51 @@ def cadastrar_usuario():
         messagebox.showwarning("Aviso", "A idade deve ser um número inteiro.")
         return
 
-    usuario = {
-        "nome": nome,
-        "idade": idade
-    }
-
-    usuarios.append(usuario)
-    messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")
+    mensagem = cadastrar_usuario(nome, idade)
+    messagebox.showinfo("Sucesso", mensagem)
+    atualizar_lista()
 
     entry_nome.delete(0, tk.END)
     entry_idade.delete(0, tk.END)
-    entry_nome.focus()
 
 
-def listar_usuarios():
-    resultado.delete("1.0", tk.END)
-
-    if len(usuarios) == 0:
-        resultado.insert(tk.END, "Nenhum usuário cadastrado.\n")
-        return
-
-    resultado.insert(tk.END, "=== USUÁRIOS CADASTRADOS ===\n")
-    for i, usuario in enumerate(usuarios, start=1):
-        resultado.insert(
-            tk.END,
-            f"{i}. Nome: {usuario['nome']} | Idade: {usuario['idade']}\n"
-        )
+def acao_listar():
+    mensagem = listar_usuarios()
+    resultado.insert(tk.END, mensagem + "\n")
 
 
-def buscar_usuario():
-    nome_busca = entry_nome.get().strip().lower()
-    resultado.delete("1.0", tk.END)
-
-    if nome_busca == "":
-        messagebox.showwarning("Aviso", "Digite um nome para buscar.")
-        return
-
-    for usuario in usuarios:
-        if usuario["nome"].lower() == nome_busca:
-            resultado.insert(
-                tk.END,
-                f"Usuário encontrado:\nNome: {usuario['nome']} | Idade: {usuario['idade']}\n"
-            )
-            return
-
-    resultado.insert(tk.END, "Usuário não encontrado.\n")
+def acao_buscar():
+    nome = entry_nome.get().strip()
+    mensagem = buscar_usuario(nome)
+    resultado.insert(tk.END, mensagem + "\n")
 
 
-def remover_usuario():
-    nome_busca = entry_nome.get().strip().lower()
-    resultado.delete("1.0", tk.END)
+def acao_remover():
+    nome = entry_nome.get().strip()
+    mensagem = remover_usuario(nome)
+    resultado.insert(tk.END, mensagem + "\n")
 
-    if nome_busca == "":
-        messagebox.showwarning("Aviso", "Digite um nome para remover.")
-        return
 
-    for usuario in usuarios:
-        if usuario["nome"].lower() == nome_busca:
-            usuarios.remove(usuario)
-            resultado.insert(tk.END, f"Usuário '{usuario['nome']}' removido com sucesso.\n")
-            entry_nome.delete(0, tk.END)
-            entry_idade.delete(0, tk.END)
-            entry_nome.focus()
-            return
 
-    resultado.insert(tk.END, "Usuário não encontrado para remoção.\n")
-
-def editar_usuario():
-    nome_busca = entry_nome.get().strip().lower()
+def acao_editar():
+    nome_antigo = entry_nome_antigo.get().strip()
+    novo_nome = entry_nome.get().strip()
     nova_idade = entry_idade.get().strip()
-    resultado.delete("1.0", tk.END)
 
-    if nome_busca == "":
-        messagebox.showwarning("Aviso", "Digite o nome do usuário para editar.")
+    if nome_antigo == "" or novo_nome == "" or nova_idade == "":
+        messagebox.showwarning("Aviso", "Preencha todos os campos para editar.")
         return
 
     if not nova_idade.isdigit():
-        messagebox.showwarning("Aviso", "Digite uma nova idade válida.")
+        messagebox.showwarning("Aviso", "A idade deve ser um número inteiro.")
         return
 
-    for usuario in usuarios:
-        if usuario["nome"].lower() == nome_busca:
-            usuario["idade"] = nova_idade
-            resultado.insert(
-                tk.END,
-                f"Usuário '{usuario['nome']}' atualizado com sucesso para idade {nova_idade}.\n"
-            )
-            entry_nome.delete(0, tk.END)
-            entry_idade.delete(0, tk.END)
-            entry_nome.focus()
-            return
+    mensagem = editar_usuario(nome_antigo, novo_nome, nova_idade)
+    resultado.insert(tk.END, mensagem + "\n")
 
-    resultado.insert(tk.END, "Usuário não encontrado para edição.\n")
+    entry_nome_antigo.delete(0, tk.END)
+    entry_nome.delete(0, tk.END)
+    entry_idade.delete(0, tk.END)
 
 def limpar_resultado():
     resultado.delete("1.0", tk.END)
@@ -120,13 +74,19 @@ janela.geometry("550x420")
 label_titulo = tk.Label(janela, text="Sistema de Cadastro", font=("Arial", 16))
 label_titulo.pack(pady=10)
 
-label_nome = tk.Label(janela, text="Nome:")
+label_nome_antigo = tk.Label(janela, text="Nome antigo:")
+label_nome_antigo.pack()
+
+entry_nome_antigo = tk.Entry(janela, width=40)
+entry_nome_antigo.pack(pady=5)
+
+label_nome = tk.Label(janela, text="Novo nome:")
 label_nome.pack()
 
 entry_nome = tk.Entry(janela, width=40)
 entry_nome.pack(pady=5)
 
-label_idade = tk.Label(janela, text="Idade:")
+label_idade = tk.Label(janela, text="Nova idade:")
 label_idade.pack()
 
 entry_idade = tk.Entry(janela, width=40)
@@ -135,19 +95,19 @@ entry_idade.pack(pady=5)
 frame_botoes = tk.Frame(janela)
 frame_botoes.pack(pady=10)
 
-btn_cadastrar = tk.Button(frame_botoes, text="Cadastrar", command=cadastrar_usuario)
+btn_cadastrar = tk.Button(frame_botoes, text="Cadastrar", command=acao_cadastrar)
 btn_cadastrar.grid(row=0, column=0, padx=5, pady=5)
 
-btn_listar = tk.Button(frame_botoes, text="Listar", command=listar_usuarios)
+btn_listar = tk.Button(frame_botoes, text="Listar", command=acao_listar)
 btn_listar.grid(row=0, column=1, padx=5, pady=5)
 
-btn_buscar = tk.Button(frame_botoes, text="Buscar", command=buscar_usuario)
+btn_buscar = tk.Button(frame_botoes, text="Buscar", command=acao_buscar)
 btn_buscar.grid(row=0, column=2, padx=5, pady=5)
 
-btn_remover = tk.Button(frame_botoes, text="Remover", command=remover_usuario)
+btn_remover = tk.Button(frame_botoes, text="Remover", command=acao_remover)
 btn_remover.grid(row=0, column=3, padx=5, pady=5)
 
-btn_editar = tk.Button(frame_botoes, text="Editar", command=editar_usuario)
+btn_editar = tk.Button(frame_botoes, text="Editar", command=acao_editar)
 btn_editar.grid(row=0, column=4, padx=5, pady=5)
 
 btn_limpar = tk.Button(frame_botoes, text="Limpar", command=limpar_resultado)
